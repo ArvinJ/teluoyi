@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.teluoyi.dao.UserDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="org.teluoyi.entity.UserEntity" id="userMap">
+        <result property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="createtime" column="createTime"/>
+        <result property="updatetime" column="updateTime"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="org.teluoyi.entity.UserEntity">
+		select * from t_user where id = #{value}
+	</select>
+
+	<select id="queryList" resultType="org.teluoyi.entity.UserEntity">
+		select * from t_user
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from t_user 
+	</select>
+	 
+	<insert id="save" parameterType="org.teluoyi.entity.UserEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into t_user
+		(
+			`username`, 
+			`password`, 
+			`createTime`, 
+			`updateTime`, 
+			`status`
+		)
+		values
+		(
+			#{username}, 
+			#{password}, 
+			#{createtime}, 
+			#{updatetime}, 
+			#{status}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="org.teluoyi.entity.UserEntity">
+		update t_user 
+		<set>
+			<if test="username != null">`username` = #{username}, </if>
+			<if test="password != null">`password` = #{password}, </if>
+			<if test="createtime != null">`createTime` = #{createtime}, </if>
+			<if test="updatetime != null">`updateTime` = #{updatetime}, </if>
+			<if test="status != null">`status` = #{status}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_user where id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from t_user where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>
